@@ -1,5 +1,5 @@
 ---
-title: "Launch your new tutorial on Data Dcience after Christmas"
+title: "Launch your new tutorial on Data Science after Christmas"
 author: "Andrea Scalco"
 #date: "25 October 2019"
 output: html_document
@@ -9,17 +9,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Recently, while browsing [R-Bloggers](https://www.r-bloggers.com/), my interest got captured by a short review made by [L. Ellis](https://www.r-bloggers.com/fundatafriday-gtrendsr/) about the [**gtrendsR**](https://cran.r-project.org/web/packages/gtrendsR/gtrendsR.pdf) package. Developed by P. Massicotte and D. Eddelbuettel, this package gives the chance to collect and display information from [**Google Trends**](https://trends.google.com/trends), the popular website launched by Google that let you analyse one or more search queries performed trough its search engine.
+Recently, while browsing [R-Bloggers](https://www.r-bloggers.com/), my interest got captured by a [short review](https://www.r-bloggers.com/fundatafriday-gtrendsr/) about the [**gtrendsR**](https://cran.r-project.org/web/packages/gtrendsR/gtrendsR.pdf) package developed by P. Massicotte and D. Eddelbuettel. This R package allows retrieving and displaying information from [**Google Trends**](https://trends.google.com/trends), the website launched by Google that let you analyse users' search queries performed trough its search engine. Needless to say, I immediately started playing with it, and **here I summarised what I learned**.
 
 ## Retrieve the data
 
 First things first, install the package using the standard package installation method. 
 
-```{r Installa and load gtrendsR, eval=FALSE}
+```{r Install gtrendsR, eval=FALSE}
 install.packages("gtrendsR")
 ```
 
-After installing, I can now query Google Trends and start collecting some data. **Data Science** seems to be a popular topic, with a growing number of articles and tutorials, thus I decided to focus on that.
+After installing, it is possible to query Google Trends and collecting some data using the function ```gtrends()```. Nowadays **Data Science** seems to be a popular topic, with a growing number of articles and tutorials, thus I decided to focus on that.
 
 ```{r Retrieve data from Google Trends, warning=FALSE}
 # Load package
@@ -35,36 +35,35 @@ my.trend <- gtrends(keyword = g.keywords,
                    time = "today+5-y")
 ```
 
-Beside the keywords, ```gtrends``` gives some useful options among others worth to mention.
+Beside specific keywords, ```gtrends()``` gives some useful options among others worth to mention.
 
 - ```geo```: defines the location of interests (e.g. US, Europe, Italy, UK). To know the specific codes of each **location**, type ```data(countries); countries```.  
 - ```time```: a second important option is the **time span** of the query. Some options available includes ```"now 7-d"``` for the past seven days, ```"today 12-m"``` for the past 12 months, or ```"Y-m-d Y-m-d"``` for the time span between two dates. 
 - ```gprop```: limits the search to specific **Google products**. "web" is the default option, however, others options include "news", "images", or "youtube".
 
-For this small project, I did not limited the research to any specific country since I assumed the term "Data Science" has not been translated in most of the world regions. About the time span, I set a 5-year time framework in order to observe how the interest changed over years starting approximately from [the first IEEE International Conference on Data Science and Advanced Analytics](https://web.archive.org/web/20170329172857/http://datamining.it.uts.edu.au/conferences/dsaa14/). Finally, I was interested in looking at web searches, so I let the default option.
+For this small project, the research was not limited to any specific country since it was assumed that the term "Data Science" has not been translated in most of the world regions. About the time span, a 5-year time framework was set in order to observe how the interest changed over years starting approximately from [the first IEEE International Conference on Data Science and Advanced Analytics](https://web.archive.org/web/20170329172857/http://datamining.it.uts.edu.au/conferences/dsaa14/). Finally, given the interest was only for web searches, the default option for Google product was left unchanged.
 
 
 ## Plot
 
-From the manual, gtrendsR generate "an object of class ‘gtrends’". This might be a tricky object to plot if we are in hurry since it is basically a list of data frames. However, the package comes with a built-in function that let you **immediately plot** the data collected using ggplot2.
+The packange manual states that ```gtrends()``` generates "an object of class ‘gtrends’". This might be a tricky object to plot when in hurry since it is a list of data frames. However, the package comes with a built-in function that let you **immediately plot** the data collected using ggplot2.
 
 ```{r Plot by gtrendsR}
 plot(my.trend)
 ```
 
-Nice and easy, I traced the interested for the keyword "Data science" from the October 2014 to October 2019 as collected by Google search engine.
+Nice and easy, the plot shows the interest for "Data science" from October 2014 to October 2019 as collected by Google search engine.
 
-However, with a little more time, I managed to create my own plot, so that I am free to build over it. To this purpose, I re-arrenged the most important information collected (i.e. the dates, the volume of search queries) along with the keyword of interest from the gtrend object to a brand-new dataframe.
+However, with a little more time, I managed to create **my own plot**, so that I could be free to build over it. To this purpose, I re-arrenged the most important information collected (i.e. the dates, the volume of search queries) along with the keyword of interest from the gtrend object to a brand-new dataframe.
 
 ```{r Plot arrange data for plot}
 # Create tidy dataframe extracting data obtained using gtrends
 data.to.plot <- data.frame(date = my.trend$interest_over_time$date,
                            hits = my.trend$interest_over_time$hits,
-                           keyword = paste( my.trend$interest_over_time$keyword, " (", 
-                                            my.trend$interest_over_time$geo, ")", sep = ""))
+                           keyword = my.trend$interest_over_time$keyword)
 ```
 
-I then asked ggplot2 to recreate the visualization. It appears rougher than the one provided by the package, but it does the job.
+ggplot2 was then used to trace the interest over the years (the plot appears rougher than the one provided by the package, but it does the job).
 
 ```{r Plot basic trend}
 # Load ggplot
@@ -75,9 +74,11 @@ ggplot(data.to.plot, aes(x = date, y = hits, color = keyword)) +
   geom_line()
 ```
 
-By observing the plot, Data Science seems to be a growing trend. This appears in line with many recent articles on the topics (see above all [the report by IBM](https://www.ibm.com/downloads/cas/3RL3VXGA)).
+By observing the plot, Data Science seems to be a growing trend. This appears in line with many recent articles on the topic (see especially [the report by IBM](https://www.ibm.com/downloads/cas/3RL3VXGA)). **One idea for the future** could be to refine the work by introducing **time series analysis**. A starting point might be the tutorials by A. Coghlan [(Using R for Time Series Analysis)](https://a-little-book-of-r-for-time-series.readthedocs.io/en/latest/src/timeseries.html) and by S. Prabhakaran [(Time Series Analysis at r-statistics.co)](http://r-statistics.co/Time-Series-Analysis-With-R.html). 
 
-Besides the grow, looking at the plot there seems to be a certain pattern of the search queries related to Data Science. It goes down and up almost at the end of the year. Could it be around Christmas? That would be something that distract almost everybody in most parts of the world. Let's add some marks and see if the overlap the change of the trend. To quickly spot Christmas days, I will add some vertical lines on the 25th December of each year over the previous plot.
+## When the interest spikes
+
+Besides the growth, looking at the plot there seems to be a certain pattern of the search queries related to Data Science. It goes down and up almost at the end of the year. Could it be around Christmas? That would be something that distract almost everybody in most parts of the world. Let's add some marks and see if the overlap the change of the trend. To quickly spot Christmas days, I will add some vertical lines on the 25th December of each year over the previous plot.
 
 ```{r Build Xmas dates vector}
 # Define a vector that contains xmas days
@@ -89,8 +90,7 @@ xmas.dates <- paste("20", c(14:19), "-12-25", sep = "")
 # Create dataframe with data to plot
 data.to.plot <- data.frame(date = my.trend$interest_over_time$date,
                            hits = my.trend$interest_over_time$hits,
-                           keyword = paste( my.trend$interest_over_time$keyword, " (", 
-                                            my.trend$interest_over_time$geo, ")", sep = ""))
+                           keyword = my.trend$interest_over_time$keyword)
 
 # Plot trend
 ggplot(data.to.plot, aes(x = date, y = hits, color = keyword)) +
@@ -100,7 +100,9 @@ ggplot(data.to.plot, aes(x = date, y = hits, color = keyword)) +
 
 ## Some considerations
 
-**It the most wonderful time of the year...to start learning about Data Science!** Christmas days appears to be in line the sparks of interest during Data Science. A first interpration of this pattern might be that during Christmas people have generally more time to spend on the internet, browsing the latest tech news, and so on. Another one comes from the chance the interest is spread through word of mouth: is maybe the geeky uncle or cousin that sparks the interests when the family gathers together? Finally, a third interpretation might be related to the fact that before the new year, people tend to commit to new intentions, and learning something new might be among the options.
+**It's the most wonderful time of the year...to start learning about Data Science!** Christmas days appears to be in line with the spikes of interest. Thus, immediately after Christamas could one of the best time of the year to launch a new tutorial on Data Science.
+
+Now, it would be interesting to understand *why* there is a sudden shift of interest and the spike exaclty around Christams day. A first interpration involves more free time available during holidays. Generally during Christmas people have more time to spend on the internet, browsing the latest tech news, and so on, and thus the observed trend could simply be the reflection of **more users browsing the internet**. Another explanation could involve **word-of-mouth**. For most people, Christmas is the time of the year where people gather together, increasing the chance for people to become aware about Data Science trhough the geeky uncle or cousin. Finally, a third interpretation is related to the start of new year. It is quite common for people to commit to **new intentions** for the coming year: learning more about Data Science might fall among the options
 
 Nevertheless, it must be considered that the information came only from  people that used Google. Although Google is [the most used search engine across the world](https://gs.statcounter.com/search-engine-market-share), I did not have results from the others (for instance, [Bing](https://www.bing.com), or the more recent "green" search engine [Ecosia](https://www.ecosia.org/?c=en)). Analogously, bear in mind that this is the interest for Data Science showed by those who have access to a computer and internet, and Google Trends did not have any restriction about the location.
 
