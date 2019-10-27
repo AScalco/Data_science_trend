@@ -25,10 +25,11 @@ getAnywhere(plot.gtrends)
 # Retrieve data -----------------------------------------------------------
 
 # Choose keywords
-g.keywords <- c("Data science",  "All I want for christmas")
+g.keywords <- c("Data science")
+#g.keywords <- c("Data science",  "All I want for christmas")
 
 # Retrieve data with function "gtrends"
-mytrend <- gtrends(keyword = g.keywords, #, "Online learning", "MOOCs"),
+my.trend <- gtrends(keyword = g.keywords,
                    geo = "",
                    time = "today+5-y")
 
@@ -36,20 +37,16 @@ mytrend <- gtrends(keyword = g.keywords, #, "Online learning", "MOOCs"),
 # Plotting ----------------------------------------------------------------
 
 # Quick plot with R base
-plot(mytrend)
+plot(my.trend)
 
 # Adv ggplots
 library("ggplot2")
 
 # Build dataframe to plot
-data.to.plot <- data.frame(date = mytrend$interest_over_time$date,
-                           hits = mytrend$interest_over_time$hits,
-                           keyword = paste( mytrend$interest_over_time$keyword, " (",  mytrend$interest_over_time$geo, ")", sep = ""))
+data.to.plot <- data.frame(date = my.trend$interest_over_time$date,
+                           hits = my.trend$interest_over_time$hits,
+                           keyword = paste( my.trend$interest_over_time$keyword, " (",  my.trend$interest_over_time$geo, ")", sep = ""))
 head(data.to.plot)
-
-# Normalize "All I want.." 
-data.to.plot$hits[data.to.plot$keyword == "All i want for christmas (world)"] <- data.to.plot$hits[data.to.plot$keyword == "All i want for christmas (world)"]  * 1000
-#data.to.plot$hits[(data.to.plot$keyword == "Data science (world)")]
 
 # Define a vector that contains xmas days
 xmas.dates <- paste("20", c(14:19), "-12-25", sep = ""); xmas.dates
@@ -65,10 +62,22 @@ ggplot(data.to.plot, aes(x = date, y = hits, color = keyword)) +
   # add lines to mark end of summer (add + in the previous code of line)
   #geom_vline(xintercept = as.integer(as.POSIXct(firstsummer.dates)), colour = "red", linetype = 3, size = 0.75)
 
-str(mytrend)
+str(my.trend)
 
 # How to plot a vertical line when x-axis are dates
 my.date <- "2019-08-25"
 as.integer(as.POSIXct(my.date))
 
 min(data.to.plot$date)
+
+
+
+# Testing area ------------------------------------------------------------
+
+# add legend to xmas lines
+ggplot(data.to.plot, aes(x = date, y = hits, lty  = keyword)) +
+  geom_line() +
+  geom_vline(xintercept = as.integer(as.POSIXct(xmas.dates)), colour = "blue", linetype = 3, size = 0.75) +
+  scale_color_manual(name = "statistics", values = c(median = "blue", mean = "red"))
+
+
